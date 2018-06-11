@@ -28,14 +28,20 @@ import java.awt.*;
                     break;
 
                 case Snake:
-                    setIcon(imgs);
+                    setIcon(null);
+                    setBackground(Color.cyan);
                     setOpaque(true);
                     break;
 
                 case Food:
+                    setIcon(null);
                     setBackground(Color.RED);
                     setOpaque(true);
 
             }
+        }
+
+        public Type getFlag() {
+            return flag;
         }
     }
