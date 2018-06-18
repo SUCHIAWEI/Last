@@ -13,6 +13,7 @@ public class SnakeF extends JFrame {
 
 
     int times , scores ;
+    int rows =16, cols =25;
     private JButton run = new JButton("Start");
     private JButton re = new JButton("Again");
     private JButton exit = new JButton("Exit");
@@ -32,7 +33,7 @@ public class SnakeF extends JFrame {
     private SnakeGrid snakeset[][] = new SnakeGrid[16][25];
     private ImageIcon img = new ImageIcon("back.jpg");
     private int choose =1;
-    private int howfast=250;
+    private int howfast=400;
     private boolean flag = true;
     private Random ran = new Random();
     private boolean live =true;
@@ -52,7 +53,7 @@ public class SnakeF extends JFrame {
         this.setBounds(100, 100, 1010, 800);
         cp = this.getContentPane();
         cp.add(jpc, BorderLayout.CENTER);
-        jpc.setLayout(new GridLayout(16, 25, 1, 1));
+        jpc.setLayout(new GridLayout(rows, cols, 1, 1));
 
         //版面配置
         cp.add(jpn, BorderLayout.NORTH);
@@ -95,15 +96,23 @@ public class SnakeF extends JFrame {
         t2 = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int x;
+                int y;
                 times = (int) times + 1;
                 time.setText("Time:" + Integer.toString(times));
+                x=snakebody.get(0).x;
+                y=snakebody.get(0).y;
+                if (times%4==0) {
+                    howfast = howfast -25;
+                    t.setDelay(howfast);
+                    snakebody.add(0,snakeset[y][x]);
+                }
+
+
 
             }
         });
-//        if (times%2==0) {
-//            howfast = howfast - 450;
-//            System.out.println("123");
-//        }
+
 
         cp.addKeyListener(new KeyAdapter() {
             @Override
@@ -131,16 +140,30 @@ public class SnakeF extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int x;
                 int y;
+                y = snakebody.get(0).y;
+                x = snakebody.get(0).x;
+                if (y<1 || y>14 || x<1 || x>23){
+                    t.stop();
+                    t2.stop();
+                    foodtime.stop();
+                    JOptionPane.showMessageDialog(SnakeF.this,"Game Over");
+
+
+                }
+
                 switch (choose) {
                     case 1:
                         y = snakebody.get(0).y-1;
                         x = snakebody.get(0).x;
+
                         snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
                         snakebody.add(0, snakeset[y][x]);
                         snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
+
                         snakebody.remove(snakebody.size() - 1);
                         break;
                     case 2:
+
                         y = snakebody.get(0).y+1;
                         x = snakebody.get(0).x;
                         snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
@@ -181,15 +204,13 @@ public class SnakeF extends JFrame {
                 if (snakeset[a][b].getFlag() == SnakeGrid.Type.Ground) {
                     snakeset[a][b].setFlag(SnakeGrid.Type.Food);
                     food.add(snakeset[a][b]);
-                    food.add(0, snakeset[a][b]);
                 }
             }
         });
 
-            scores++;
-            score.setText("Score:"+Integer.toString(scores));
 
-            snakebody.add(snakeset[12][12]);
+
+        snakebody.add(snakeset[12][12]);
         snakeset[12][12].setFlag(SnakeGrid.Type.Snake);
         snakebody.add(snakeset[13][12]);
         snakeset[13][12].setFlag(SnakeGrid.Type.Snake);
@@ -207,6 +228,11 @@ public class SnakeF extends JFrame {
                 cp.requestFocus();
             }
 
+        });
+        re.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            }
         });
         exit.addActionListener(new ActionListener() {
             @Override
