@@ -37,7 +37,7 @@ import java.awt.*;
                     setIcon(null);
                     setBackground(Color.RED);
                     setOpaque(true);
-
+                    break;
             }
         }
 
