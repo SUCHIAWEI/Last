@@ -23,17 +23,20 @@ import java.awt.*;
         public void setFlag(Type flag){
             switch (flag){
                 case Ground:
+                    this.flag = Type.Ground;    //這裡
                     setIcon(img);
                     setOpaque(false);
                     break;
 
                 case Snake:
+                    this.flag = Type.Snake;     //這裡
                     setIcon(null);
                     setBackground(Color.cyan);
                     setOpaque(true);
                     break;
 
                 case Food:
+                    this.flag = Type.Food;      //這裡
                     setIcon(null);
                     setBackground(Color.RED);
                     setOpaque(true);
