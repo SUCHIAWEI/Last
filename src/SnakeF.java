@@ -5,43 +5,34 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Random;
 
 public class SnakeF extends JFrame {
     private Container cp;
-
-
-    int times , scores ;
-    int rows =16, cols =25;
+    private int times , scores ;
+    private int choose =1;
+    private int howfast=400;
     private JButton run = new JButton("Start");
     private JButton re = new JButton("Again");
     private JButton exit = new JButton("Exit");
     private JLabel score = new JLabel("Score:"+0 );
-    private JLabel score2 = new JLabel("0");
     private JLabel said = new JLabel("<html>遊<br>戲<br>說<br>明<br>：" +
             "<br>吃<br>到<br>東<br>西<br>可<br>以<br>加<br>分<br>" +
-            "每<br>過<br>20<br>秒<br>速<br>度<br>將<br>會<br>加<br>快<br>" +
+            "每<br>過<br>5<br>秒<br>速<br>度<br>將<br>會<br>加<br>快<br>" +
             "且<br>蛇<br>會<br>變<br>長<br>。<<br></html>");
     private JLabel time = new JLabel("Time:" + 0);
-    private Timer t;
-    private Timer t2;
+    private Timer snakemove;
+    private Timer speedset;
     private Timer foodtime;
     private JPanel jpn = new JPanel(new GridLayout(1, 2, 1, 1));
     private JPanel jps = new JPanel(new GridLayout(1, 3, 1, 1));
     private JPanel jpc = new JPanel();
     private JPanel jpe = new JPanel();
-    public SnakeGrid snakeset[][] = new SnakeGrid[16][25];
-    private ImageIcon img = new ImageIcon("back.jpg");
-    private int choose =1;
-    private int howfast=400;
-    private boolean flag = true;
     private Random ran = new Random();
-    private boolean live =true;
 
-
-    public ArrayList<SnakeGrid> snakebody = new ArrayList<>();
-    public ArrayList<SnakeGrid> food = new ArrayList<>();
+    private SnakeGrid snakeset[][] = new SnakeGrid[16][25];
+    private ArrayList<SnakeGrid> snakebody = new ArrayList<>();
+    private ArrayList<SnakeGrid> food = new ArrayList<>();
 
 
 
@@ -54,14 +45,13 @@ public class SnakeF extends JFrame {
         this.setBounds(100, 100, 1010, 800);
         cp = this.getContentPane();
         cp.add(jpc, BorderLayout.CENTER);
-        jpc.setLayout(new GridLayout(rows, cols, 1, 1));
+        jpc.setLayout(new GridLayout(16, 25, 1, 1));
 
         //版面配置
         cp.add(jpn, BorderLayout.NORTH);
         cp.add(jps, BorderLayout.SOUTH);
         cp.add(jpe, BorderLayout.EAST);
         jpn.add(score);
-        jpn.add(score2);
         jpn.add(time);
         jps.add(run);
         jps.add(re);
@@ -84,7 +74,6 @@ public class SnakeF extends JFrame {
         exit.setOpaque(true);
         exit.setForeground(Color.white);
 
-
         //畫背景
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 25; j++) {
@@ -94,7 +83,6 @@ public class SnakeF extends JFrame {
                 jpc.add(snakeset[i][j]);
             }
         }
-
         foodtime = new Timer(1500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -104,23 +92,33 @@ public class SnakeF extends JFrame {
                if (food.size()<10){
                     if (snakeset[a][b].getFlag() == SnakeGrid.Type.Ground && snakeset[a][b].getFlag() != SnakeGrid.Type.Snake) {
                         snakeset[a][b].setFlag(SnakeGrid.Type.Food);
-                        System.out.println(a +"\t" +b);
                         food.add(snakeset[a][b]);
                     }
                 }
             }
         });
 
-        t2 = new Timer(1000, new ActionListener() {
+        speedset = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 times = times + 1;
                 time.setText("Time:" + Integer.toString(times));
-                if (times%4==0) {
-                    howfast = howfast -25;
-                    t.setDelay(howfast);
-//                    snakebody.add(0,snakeset[y][x]);
-                }
+                int y = snakebody.get(0).y;
+                int x = snakebody.get(0).x;
+                System.out.println(times);
+                    if (times % 5 == 0) {
+                        howfast = howfast - 25;
+                        if (howfast>50) {
+                            System.out.println("加速" + "\t" + "目前速度為:" + howfast);
+                            //速度最快降到50
+                            snakemove.setDelay(howfast);
+                        }
+                        if (howfast==50){
+                            System.out.println("已達最高速度");
+                        }
+                        snakebody.add(0, snakeset[y][x]);//蛇變長 , 從蛇的矩陣的頭開始加
+                    }
+
             }
         });
 
@@ -147,77 +145,103 @@ public class SnakeF extends JFrame {
             }
         });
 
-        t = new Timer(howfast, new ActionListener() {
+        snakemove = new Timer(howfast, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //蛇的控制
                 int x;
                 int y;
-//                y = snakebody.get(0).y;
-//                x = snakebody.get(0).x;
-//                if (y<1 || y>14 || x<1 || x>23){
-//                    t.stop();
-//                    t2.stop();
-//                    foodtime.stop();
-//                    JOptionPane.showMessageDialog(SnakeF.this,"Game Over");
-//                }
-
-                switch (choose) {
-                    case 1:
-                        y = snakebody.get(0).y-1;
-                        x = snakebody.get(0).x;
-//                        if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
-                            System.out.println("123");
-                            getfood(snakeset[y][x]);
-//                        }
-                        snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
-                        snakebody.add(0, snakeset[y][x]);
-                        snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
-                        snakebody.remove(snakebody.size() - 1);
-                        break;
-                    case 2:
-                        y = snakebody.get(0).y+1;
-                        x = snakebody.get(0).x;
-                        if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
-                            System.out.println("...");
-                            getfood(snakeset[y][x]);
-                        }
-                        snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
-                        snakebody.add(0, snakeset[y][x]);
-                        snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
-                        snakebody.remove(snakebody.size() - 1);
-                        break;
-                    case 3:
-                        y = snakebody.get(0).y;
-                        x = snakebody.get(0).x-1;
-                        if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
-                            System.out.println("...");
-                            getfood(snakeset[y][x]);
-                        }
-                        snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
-                        snakebody.add(0, snakeset[y][x]);
-                        snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
-                        snakebody.remove(snakebody.size() - 1);
-
-                        break;
-                    case 4:
-                        y = snakebody.get(0).y;
-                        x = snakebody.get(0).x+1;
-                        if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
-                            System.out.println("...");
-                            getfood(snakeset[y][x]);
-                        }
-                        snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
-                        snakebody.add(0, snakeset[y][x]);
-                        snakebody.get(snakebody.size()- 1).setFlag(SnakeGrid.Type.Ground);
-                        snakebody.remove(snakebody.size() - 1);
-
-
-                        break;
-                }
-
+                    switch (choose) {
+                        case 1: //上
+                            if ( snakebody.get(0).y-1>-1) {
+                                y = snakebody.get(0).y - 1;
+                                x = snakebody.get(0).x;
+                                //吃食物加分
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
+                                    for (int i = 0; i < food.size(); i++){
+                                        if (snakeset.equals(food.get(i))){
+                                            food.remove(i);
+                                            scores++;
+                                            score.setText("Score:"+Integer.toString(scores));
+                                            break;
+                                        }
+                                    }
+                                    getfood(snakeset[y][x]);
+                                }
+                                //死掉
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Snake) {
+                                    die();
+                                }
+                                snakeset[y][x].setFlag(SnakeGrid.Type.Snake); //把前面一格set成snake
+                                snakebody.add(0, snakeset[y][x]); //加到蛇的陣列裡
+                                snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground); //因為我們在頭加了一格所以我們要把最後變變回地板
+                                snakebody.remove(snakebody.size() - 1);//然後把蛇的長度-1  不然這樣你的蛇會越來越長
+                            }
+                            else {
+                                die();
+                            }
+                            break;
+                        case 2: //下
+                            if ( snakebody.get(0).y+1<16) {
+                                y = snakebody.get(0).y + 1;
+                                x = snakebody.get(0).x;
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
+                                    getfood(snakeset[y][x]);
+                                }
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Snake) {
+                                    die();
+                                }
+                                snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
+                                snakebody.add(0, snakeset[y][x]);
+                                snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
+                                snakebody.remove(snakebody.size() - 1);
+                            }
+                            else {
+                                die();
+                            }
+                            break;
+                        case 3: //左
+                            if ( snakebody.get(0).x-1>-1) {
+                                y = snakebody.get(0).y;
+                                x = snakebody.get(0).x - 1;
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
+                                    getfood(snakeset[y][x]);
+                                }
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Snake) {
+                                    die();
+                                }
+                                snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
+                                snakebody.add(0, snakeset[y][x]);
+                                snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
+                                snakebody.remove(snakebody.size() - 1);
+                            }
+                            else {
+                                die();
+                            }
+                            break;
+                        case 4: //右
+                            if ( snakebody.get(0).x+1<25) {
+                                y = snakebody.get(0).y;
+                                x = snakebody.get(0).x + 1;
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Food) {
+                                    getfood(snakeset[y][x]);
+                                }
+                                if (snakeset[y][x].getFlag() == SnakeGrid.Type.Snake) {
+                                    die();
+                                }
+                                snakeset[y][x].setFlag(SnakeGrid.Type.Snake);
+                                snakebody.add(0, snakeset[y][x]);
+                                snakebody.get(snakebody.size() - 1).setFlag(SnakeGrid.Type.Ground);
+                                snakebody.remove(snakebody.size() - 1);
+                            }
+                            else {
+                                die();
+                            }
+                            break;
+                    }
             }
         });
+        //一開始蛇的位置
         snakebody.add(snakeset[12][12]);
         snakeset[12][12].setFlag(SnakeGrid.Type.Snake);
         snakebody.add(snakeset[13][12]);
@@ -225,11 +249,13 @@ public class SnakeF extends JFrame {
         snakebody.add(snakeset[14][12]);
         snakeset[14][12].setFlag(SnakeGrid.Type.Snake);
 
+
         run.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                t.start();
-                t2.start();
+                //開始
+                snakemove.start();
+                speedset.start();
                 foodtime.start();
                 cp.requestFocus();
             }
@@ -238,6 +264,31 @@ public class SnakeF extends JFrame {
         re.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //重來
+                cp.requestFocus();
+                choose = 1 ;
+                times = 0;
+                scores = 0;
+                time.setText("Time:" + 0);
+                score.setText("Score:" + 0);
+                howfast = 400;
+                snakemove.setDelay(howfast);
+                //清除陣列 變回地板
+                for (int i = 0 ; i<snakebody.size(); i++){
+                    snakebody.get(i).setFlag(SnakeGrid.Type.Ground);
+                }
+                snakebody.clear();
+                for (int i = 0 ; i<food.size(); i++){
+                    food.get(i).setFlag(SnakeGrid.Type.Ground);
+                }
+                food.clear();
+                //重做一條蛇
+                snakebody.add(snakeset[12][12]);
+                snakeset[12][12].setFlag(SnakeGrid.Type.Snake);
+                snakebody.add(snakeset[13][12]);
+                snakeset[13][12].setFlag(SnakeGrid.Type.Snake);
+                snakebody.add(snakeset[14][12]);
+                snakeset[14][12].setFlag(SnakeGrid.Type.Snake);
             }
         });
         exit.addActionListener(new ActionListener() {
@@ -255,10 +306,13 @@ public class SnakeF extends JFrame {
                 food.remove(i);
                 scores++;
                 score.setText("Score:"+Integer.toString(scores));
-                break;
             }
         }
-
     }
-
+    private void die () {
+                    snakemove.stop();
+                    speedset.stop();
+                    foodtime.stop();
+                    JOptionPane.showMessageDialog(SnakeF.this,"Game Over");
+                }
 }
